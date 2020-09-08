@@ -55,23 +55,22 @@ io.on("connection", (socket) => {
         messagesUtil.postMessage(obj);
         let message = `${username} has joined the room`;
         socket.to(roomName).broadcast.emit("updateUserState", message);
-        let usersList = usersUtil.getUsersByRoomName(roomName);
-        io.to(roomName).emit("updateUsersList", usersList);
+        usersUtil.getUsersByRoomName(roomName,(usersList)=>{
+            io.to(roomName).emit("updateUsersList", usersList);
+        });  
     })
 
     //when a user leaves a room
     socket.on("disconnect", () => {
-        // console.log("User has left the room.");
-        let user = usersUtil.getUserById(socket.id);
-        if (user) {
-            let message = `${user.username} has left the room.`;
+        usersUtil.deleteUser(socket.id,(user)=>{
+            let message = `${user.username} has left the room`;
             socket.to(user.roomName).broadcast.emit("updateUserState", message);
-            let obj = { id: socket.id, roomName: user.roomName, username: user.username, message: "joined the room" };
+            let obj = { id: socket.id, roomName: user.roomName, username: user.username, message: "left the room" };
             messagesUtil.postMessage(obj);
-            usersUtil.deleteUser(socket.id);
-            let usersList = usersUtil.getUsersByRoomName(user.roomName);
-            io.to(user.roomName).emit("updateUsersList", usersList);
-        }
+            usersUtil.getUsersByRoomName(user.roomName,(usersList)=>{
+                io.to(user.roomName).emit("updateUsersList", usersList);
+            });
+        })
     })
 
     //when a new message arrives
@@ -84,5 +83,5 @@ io.on("connection", (socket) => {
 //listen at port specified
 server.listen(PORT, (err) => {
     if (!err)
-        console.log(`listening to port ${PORT}`);
+        console.log(`Running on http://localhost:${PORT}/`);
 })
