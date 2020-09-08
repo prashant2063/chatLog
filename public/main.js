@@ -16,8 +16,6 @@ const socket = io();
 //new user joins the room
 socket.emit("joinRoom", { username, roomName, timeStamp: Date.now() });
 
-
-
 //update list of active users
 socket.on("updateUsersList", (usersList) => {
     // console.log(usersList);
@@ -42,21 +40,22 @@ socket.on("updateUserState", (message) => {
 });
 
 //
-socket.on("broadcastMesage",(message)=>{
+socket.on("broadcastMesage", (message) => {
     formatMessage(message);
 });
 
+//format the message
 function formatMessage(message) {
     let div = document.createElement("div");
     let small = document.createElement("small");
     let p = document.createElement("p");
     let name;
     let msg = document.createTextNode(message.message);
-    if(message.username == username){
+    if (message.username == username) {
         div.classList.add('float-right');
         name = document.createTextNode("You");
     }
-    else{
+    else {
         name = document.createTextNode(message.username);
     }
     small.appendChild(name);
@@ -64,13 +63,13 @@ function formatMessage(message) {
     div.appendChild(small);
     div.appendChild(p);
     small.classList.add('text-warning')
-    div.classList.add('bg-dark','text-light','p-2','m-1','w-75','rounded');
-    
+    div.classList.add('bg-dark', 'text-light', 'p-2', 'm-1', 'w-75', 'rounded');
+
     messagesSectionElem.appendChild(div);
     messagesSectionElem.innerHTML += `<div class="clearfix"></div>`;
 }
 
-
+//format the user activity message
 function formatUserMessage(message) {
     let div = document.createElement("div");
     let small = document.createElement("small");
@@ -81,10 +80,11 @@ function formatUserMessage(message) {
     messagesSectionElem.appendChild(div);
 }
 
+//when user send a message
 function sendMessageEventHandler() {
     let message = inputMsg.value;
     if (message == "")
         return;
-    socket.emit("newMessage", { message, username, roomName, date: Date.now() });
+    socket.emit("newMessage", { message, username, roomName, timeStamp: Date.now() });
     inputMsg.value = "";
 }

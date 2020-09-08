@@ -49,25 +49,25 @@ io.on("connection", (socket) => {
         let roomName = data.roomName;
         let username = data.username;
         socket.join(roomName);
-        let obj = { id: socket.id, roomName, username, message: "joined the room" };
+        let obj = { id: socket.id, roomName, username, message: "joined the room", timeStamp: data.timeStamp };
         usersUtil.addNewUser(obj);
         socket.emit("welcomeUser", `Welcome to the room`);
         messagesUtil.postMessage(obj);
         let message = `${username} has joined the room`;
         socket.to(roomName).broadcast.emit("updateUserState", message);
-        usersUtil.getUsersByRoomName(roomName,(usersList)=>{
+        usersUtil.getUsersByRoomName(roomName, (usersList) => {
             io.to(roomName).emit("updateUsersList", usersList);
-        });  
+        });
     })
 
     //when a user leaves a room
     socket.on("disconnect", () => {
-        usersUtil.deleteUser(socket.id,(user)=>{
+        usersUtil.deleteUser(socket.id, (user) => {
+            let obj = { id: socket.id, roomName: user.roomName, username: user.username, timeStamp:Date.now(), message: "left the room" };
+            messagesUtil.postMessage(obj);
             let message = `${user.username} has left the room`;
             socket.to(user.roomName).broadcast.emit("updateUserState", message);
-            let obj = { id: socket.id, roomName: user.roomName, username: user.username, message: "left the room" };
-            messagesUtil.postMessage(obj);
-            usersUtil.getUsersByRoomName(user.roomName,(usersList)=>{
+            usersUtil.getUsersByRoomName(user.roomName, (usersList) => {
                 io.to(user.roomName).emit("updateUsersList", usersList);
             });
         })

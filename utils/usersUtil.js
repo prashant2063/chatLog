@@ -1,9 +1,10 @@
 const mongoClient = require("mongodb").MongoClient;
+const dbConfig = require("./../dbConfig");
 
-// var usersList = [];
-var dbUrl = "mongodb://localhost:27017";
-var dbName = "dummyDb";
-
+//db configuration
+const dbUrl = dbConfig.Connection.dbUrl;
+const dbName = dbConfig.Connection.dbName;
+const collectionName = "users";
 
 //add new user to database
 function addNewUser(user) {
@@ -13,7 +14,7 @@ function addNewUser(user) {
         }
         else {
             var db = dbHost.db(dbName);
-            db.collection("users", (err, coll) => {
+            db.collection(collectionName, (err, coll) => {
                 if (err) {
                     console.error("Error connecting to the collection");
                 }
@@ -26,23 +27,23 @@ function addNewUser(user) {
 }
 
 //delete a user from database
-function deleteUser(id,callback){
+function deleteUser(id, callback) {
     mongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, dbHost) => {
         if (err) {
             console.error("Error connecting to the server");
         }
         else {
             var db = dbHost.db(dbName);
-            db.collection("users", (err, coll) => {
+            db.collection(collectionName, (err, coll) => {
                 if (err) {
                     console.error("Error connecting to the collection");
                 }
                 else {
-                    coll.findOneAndDelete({id},(err,res)=>{
+                    coll.findOneAndDelete({ id }, (err, res) => {
                         if (err) {
                             console.error("Error while deleting the user");
                         }
-                        else{
+                        else {
                             callback(res.value);
                         }
                     })
@@ -53,23 +54,23 @@ function deleteUser(id,callback){
 }
 
 //fetch user details using roomName
-function getUsersByRoomName(roomName, callback){
-     mongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, dbHost) => {
+function getUsersByRoomName(roomName, callback) {
+    mongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, dbHost) => {
         if (err) {
             console.error("Error connecting to the server");
         }
         else {
             var db = dbHost.db(dbName);
-            db.collection("users", (err, coll) => {
+            db.collection(collectionName, (err, coll) => {
                 if (err) {
                     console.error("Error connecting to the collection");
                 }
                 else {
-                    coll.find({roomName}).toArray((err,res)=>{
+                    coll.find({ roomName }).toArray((err, res) => {
                         if (err) {
                             console.error("Error while fetching user list");
                         }
-                        else{
+                        else {
                             callback(res);
                         }
                     });
@@ -79,4 +80,4 @@ function getUsersByRoomName(roomName, callback){
     })
 }
 
-module.exports = {addNewUser, deleteUser, getUsersByRoomName};
+module.exports = { addNewUser, deleteUser, getUsersByRoomName };
