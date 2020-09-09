@@ -32,11 +32,13 @@ socket.on("updateUsersList", (usersList) => {
 //welcome new user
 socket.on("welcomeUser", (message) => {
     formatUserMessage(message);
+    messagesSectionElem.scrollTop = messagesSectionElem.scrollHeight - messagesSectionElem.clientHeight;
 })
 
 //when a user joins or leaves a room
 socket.on("updateUserState", (message) => {
     formatUserMessage(message);
+    messagesSectionElem.scrollTop = messagesSectionElem.scrollHeight - messagesSectionElem.clientHeight;
 });
 
 //
