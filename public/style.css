@@ -2,3 +2,7 @@
     background: url("../../images/login-bg.png");
     background-size: contain;
 }
+
+#usersList{
+    height: 80% !important;
+}

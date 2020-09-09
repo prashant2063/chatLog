@@ -1,5 +1,6 @@
 const mongoClient = require("mongodb").MongoClient;
 const dbConfig = require("./../dbConfig");
+const usersUtil = require("./usersUtil");
 
 //db configuration
 const dbUrl = dbConfig.Connection.dbUrl;
@@ -27,7 +28,7 @@ function postMessage(message) {
 }
 
 //get all messages of the specified room
-function getAllMessagesByRoom(roomName, callback) {
+function getAllMessagesByRoom(roomName, id, callback) {
     mongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, dbHost) => {
         if (err) {
             console.error("Error connecting to the server");
@@ -39,13 +40,16 @@ function getAllMessagesByRoom(roomName, callback) {
                     console.error("Error connecting to the collection");
                 }
                 else {
-                    coll.find({ roomName }).toArray((err, res) => {
-                        if (err) {
-                            console.error("Error while fetching messages");
-                        }
-                        else {
-                            callback(res);
-                        }
+                    usersUtil.getUserById(id,(user)=>{
+                        let timeStamp = user.timeStamp;
+                        coll.find({roomName: roomName, timeStamp: {$gte: timeStamp} },{'_id':0,'id':0}).toArray((err, res) => {
+                            if (err) {
+                                console.error("Error while fetching messages");
+                            }
+                            else {
+                                callback(res);
+                            }
+                        });
                     });
                 }
             })
@@ -53,31 +57,4 @@ function getAllMessagesByRoom(roomName, callback) {
     })
 }
 
-//get all the messages
-function getAllMessages(callback) {
-    mongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, dbHost) => {
-        if (err) {
-            console.error("Error connecting to the server");
-        }
-        else {
-            var db = dbHost.db(dbName);
-            db.collection(collectionName, (err, coll) => {
-                if (err) {
-                    console.error("Error connecting to the collection");
-                }
-                else {
-                    coll.find({}).toArray((err, res) => {
-                        if (err) {
-                            console.error("Error while fetching messages");
-                        }
-                        else {
-                            callback(res);
-                        }
-                    });
-                }
-            })
-        }
-    })
-}
-
-module.exports = { postMessage, getAllMessages, getAllMessagesByRoom };
+module.exports = { postMessage, getAllMessagesByRoom };

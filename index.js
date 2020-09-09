@@ -7,6 +7,8 @@ const bodyParser = require("body-parser");
 const queryString = require("querystring");
 var usersUtil = require("./utils/usersUtil");
 var messagesUtil = require("./utils/messagesUtil");
+const fs = require("fs");
+
 //port
 const PORT = 3000;
 
@@ -77,6 +79,26 @@ io.on("connection", (socket) => {
     socket.on("newMessage", (data) => {
         messagesUtil.postMessage(data);
         io.to(data.roomName).emit("broadcastMesage", data);
+    })
+
+    //download chat
+    socket.on("getChatOfRoom", (roomName)=>{
+        messagesUtil.getAllMessagesByRoom(roomName, socket.id, (messages)=>{
+            for(message of messages){
+                fs.writeFile('public/log_files/'+socket.id+".txt", JSON.stringify(messages),(err)=>{
+                    if(err){
+                        console.log("error downloading file");
+                    }
+                });
+            }
+            socket.emit("downloadFile", socket.id+".txt", (fileUrl)=>{
+                fs.unlink('public/log_files/'+fileUrl,(err) => {
+                    if (err) {
+                      console.error(err)
+                    }
+                })
+            });
+        })
     })
 })
 

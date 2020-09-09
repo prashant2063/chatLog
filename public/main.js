@@ -44,6 +44,17 @@ socket.on("broadcastMesage", (message) => {
     formatMessage(message);
 });
 
+socket.on("downloadFile",(fileUrl,callback)=>{
+    let link = document.createElement("a");
+    link.download = fileUrl;
+    link.href = "http://localhost:3000/log_files/"+fileUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    delete link;
+    callback(fileUrl);
+})
+
 //format the message
 function formatMessage(message) {
     let div = document.createElement("div");
@@ -87,4 +98,9 @@ function sendMessageEventHandler() {
         return;
     socket.emit("newMessage", { message, username, roomName, timeStamp: Date.now() });
     inputMsg.value = "";
+}
+
+//download chat for the room starting from the join time
+function downloadChat(){
+    socket.emit("getChatOfRoom",roomName);
 }

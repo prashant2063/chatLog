@@ -80,4 +80,32 @@ function getUsersByRoomName(roomName, callback) {
     })
 }
 
-module.exports = { addNewUser, deleteUser, getUsersByRoomName };
+
+//get user by id
+function getUserById(id, callback){
+    mongoClient.connect(dbUrl, { useUnifiedTopology: true }, (err, dbHost) => {
+        if (err) {
+            console.error("Error connecting to the server");
+        }
+        else {
+            var db = dbHost.db(dbName);
+            db.collection(collectionName, (err, coll) => {
+                if (err) {
+                    console.error("Error connecting to the collection");
+                }
+                else {
+                    coll.findOne({ id },(err, res) => {
+                        if (err) {
+                            console.error("Error while fetching user");
+                        }
+                        else {
+                            callback(res);
+                        }
+                    });
+                }
+            })
+        }
+    })
+}
+
+module.exports = { addNewUser, deleteUser, getUsersByRoomName, getUserById };
