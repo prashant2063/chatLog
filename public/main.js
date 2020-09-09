@@ -42,6 +42,7 @@ socket.on("updateUserState", (message) => {
 //
 socket.on("broadcastMesage", (message) => {
     formatMessage(message);
+    messagesSectionElem.scrollTop = messagesSectionElem.scrollHeight - messagesSectionElem.clientHeight;
 });
 
 socket.on("downloadFile",(fileUrl,callback)=>{
